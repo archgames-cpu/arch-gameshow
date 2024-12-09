@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gameshow</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="slot-machine.min.css" />
+
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #4B0082;
+            color: white;
+        }
+
+        #slot-machine {
+            width: 600px;
+            height: 477px;
+            background-color: #ccc;
+            margin-bottom: 20px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: top 0.5s ease, transform 0.5s ease;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            display: none;
+        }
+
+        #handle {
+            width: 50px;
+            height: 150px;
+            background-color: #333;
+            border-radius: 10px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(300px, -50%);
+            cursor: pointer;
+            transition: transform 0.5s ease;
+        }
+
+        #handle::before {
+            content: '';
+            width: 20px;
+            height: 20px;
+            background-color: #ffcc00;
+            border-radius: 50%;
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .pull {
+            transform: translateY(100px);
+        }
+
+        #result {
+            position: absolute;
+            top: 55%;
+            left: 50%;
+            transform: translate(-50%, 0);
+            font-size: 24px;
+            font-weight: bold;
+            display: none;
+        }
+
+        #balance {
+            position: absolute;
+            top: 10%;
+            left: 10px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .close-button {
+            float: right;
+            cursor: pointer;
+            font-size: 20px;
+            color: red;
+        }
+
+        @keyframes spin {
+            from { transform: rotateX(0deg); }
+            to { transform: rotateX(360deg); }
+        }
+
+        .spin {
+            animation: spin 1s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <h1 class="gameshow-title"><strong><i>Gameshow</i></strong></h1>
+        <p id="balance">Balance: 100</p>
+        <div class="theme-switch">
+            <label class="switch">
+                <input type="checkbox" id="theme-switch" onclick="toggleTheme()">
+                <span class="slider round"></span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Custom Alert Container -->
+    <div id="custom-alert-container"></div>
+
+    <div class="panel" id="panel"></div>
+
+    <div class="main-content">
+        <div class="input-container">
+            <div class="input-label">Username</div>
+            <input type="text" id="username" placeholder="Enter your username" maxlength="12" class="bold-input rounded-input hover-effect text-center">
+
+            <div class="input-label">Game Code</div>
+            <input type="text" id="gameCode" placeholder="Enter game code" maxlength="4" oninput="handleGameCodeInput(this)" class="bold-input rounded-input hover-effect text-center" onkeypress="checkEnter(event)">
+
+            <button id="play-button" class="play-button rounded-button hover-effect text-center" onclick="checkGameCode()">Play</button>
+
+             <!-- Divider between Play and Create Game buttons -->
+             <hr class="divider">
+         </div>
+
+         <!-- Character Selection Section (initially hidden) -->
+         <div id="character-selection-container" style="display:none;">
+             <h2>Select Your Character</h2>
+             <div class="character-selection">
+                 <!-- Character options (6 boxes) -->
+                 <div class='character-box' onclick='selectCharacter("Character 1")'>Character 1</div>
+                 <div class='character-box' onclick='selectCharacter("Character 2")'>Character 2</div>
+                 <div class='character-box' onclick='selectCharacter("Character 3")'>Character 3</div>
+                 <div class='character-box' onclick='selectCharacter("Character 4")'>Character 4</div>
+                 <div class='character-box' onclick='selectCharacter("Character 5")'>Character 5</div>
+                 <div class='character-box' onclick='selectCharacter("Character 6")'>Character 6</div>
+             </div>
+
+             <p id='selected-character' style='color:#ccc;font-size:14px;'>Selected Character:</p>
+         </div>
+
+         <!-- Test Button -->
+         <button id="test-button" class="test-button rounded-button hover-effect text-center" onclick="loadSlotMachine()">Test</button>
+
+         <!-- Result Display -->
+         <p id="result"></p> 
+
+     </div>
+
+     <!-- Create Game Button at the bottom -->
+     <div class="create-game-container">
+       <button id="create-game-button" class="create-game-button rounded-button hover-effect text-center" onclick="createGame()">Create Game</button>
+     </div>
+
+     <p class="terms-text text-center">By playing you agree to our terms of service.</p>
+     <div class="watermark">2024 Arch Software</div>
+
+     <script type="text/javascript">
+         let balance = 100;
+
+         function loadSlotMachine() {
+             const link = document.createElement('link');
+             link.rel = 'stylesheet';
+             link.type = 'text/css';
+             link.href = 'slot-machine.min.css'; 
+             document.head.appendChild(link);
+
+             const script = document.createElement('script');
+             script.src = 'slot-machine.min.js'; 
+             script.onload = initializeSlotMachine; 
+             document.body.appendChild(script);
+
+             const slotMachineHTML = `
+                 <div id="slot-machine" class="slot-machine">
+                     <span class="close-button" onclick="hideSlotMachine()">✖</span> 
+                 </div>
+                 <div id="handle"></div> 
+             `;
+             document.body.insertAdjacentHTML('beforeend', slotMachineHTML);
+
+             const slotMachine = document.getElementById('slot-machine');
+             slotMachine.style.display = 'block';
+
+             slotMachine.style.top = '50%';
+             slotMachine.style.transform = 'translate(-50%, -50%)';
+         }
+
+         function initializeSlotMachine() {
+             var reels = [
+                 {
+                     imageSrc: 'images/reel-strip1.png',
+                     symbols: [
+                         { title: 'cherry', position: 100, weight: 2 },
+                         { title: 'plum', position: 300, weight: 6 },
+                     ]
+                 },
+                 {
+                     imageSrc: 'images/reel-strip2.png',
+                     symbols: [
+                         { title: 'orange', position: 100, weight: 6 },
+                         { title: 'plum', position: 300, weight: 5 },
+                     ]
+                 },
+                 {
+                     imageSrc: 'images/reel-strip3.png',
+                     symbols: [
+                         { title: 'cherry', position: 100, weight: 4 },
+                         { title: 'bell', position: 300, weight: 1 },
+                     ]
+                 }
+             ];
+
+             var callback = function(payLine) {
+                 console.log(payLine[0].title + ' | ' + payLine[1].title + ' | ' + payLine[2].title);
+                 if (payLine[0].title === payLine[1].title && payLine[0].title === payLine[2].title) {
+                     (new Audio('sounds/winner.mp3')).play();
+                 }
+
+                 let generatedNumber = getBalancedRandomNumber(-10, 10);
+                 const resultElement = document.getElementById('result');
+                 resultElement.innerText = `Generated Number:${generatedNumber.toFixed(1)}`;
+                 resultElement.style.display = 'block';
+
+                 const shouldAdd = Math.random() < 0.5;
+                 if (shouldAdd) {
+                     balance += generatedNumber;
+                     resultElement.innerText += ` (Added to balance)`;
+                 } else {
+                     balance -= generatedNumber;
+                     resultElement.innerText += ` (Subtracted from balance)`;
+                 }
+
+                 document.getElementById('balance').innerText = `Balance: ${balance.toFixed(2)}`;
+
+                 setTimeout(() => {
+                     resultElement.style.display = 'none';
+                 }, 5000);
+
+                 if (balance <= 0) {
+                     alert("You've run out of balance! Game over.");
+                     hideSlotMachine();
+                 }
+             };
+
+             function getBalancedRandomNumber(min, max) {
+                 const range = max - min + 1;
+                 let random = Math.floor(Math.random() * range) + min;
+
+                 if (Math.abs(random) > 5) {
+                     random = Math.random() < 0.5 ? -Math.abs(random) : Math.abs(random);
+                 }
+
+                 let decimalPart = Math.random() < 0.5 ? 0 : 0.5;
+                 return random + decimalPart;
+             }
+
+             var container = document.getElementById('slot-machine');
+             var slotOptions = {
+                 click2Spin: false,
+                 sounds: {
+                     reelsBegin: 'sounds/reelsBegin.mp3',
+                     reelsEnd: 'sounds/reelsEnd.mp3'
+                 },
+                 rotationAxis: 'x'
+             };
+
+             var slotMachineInstance = slotMachine(container, reels, callback, slotOptions);
+
+             var handle = document.getElementById('handle');
+             
+             handle.addEventListener('click', () => {
+                 if (balance <= 0) {
+                     alert("You don't have enough balance to spin!");
+                     return;
+                 }
+
+                 document.getElementById('result').innerText = ''; 
+                 handle.classList.add('pull'); 
+                 
+                 setTimeout(() => {
+                     handle.classList.remove('pull'); 
+                     slotMachineInstance.play(); 
+                 }, 200); 
+             });
+         }
+
+         function hideSlotMachine() {
+           const slotMachine = document.getElementById('slot-machine');
+           const handle = document.getElementById('handle');
+
+           slotMachine.style.transform = 'translate(-100%, -50%)';
+           handle.style.transform = 'translate(700px, -50%)';
+
+           setTimeout(() => {
+               slotMachine.style.display = 'none';
+               handle.style.display = 'none';
+
+               slotMachine.remove();
+               handle.remove();
+           }, 500);
+       }
+   </script>
+
+</body>
+</html>

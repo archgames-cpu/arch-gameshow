@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="top-bar">
+        <h1 class="gameshow-title"><strong><i>Join Game</i></strong></h1>
+    </div>
+
+    <div class="main-content">
+        <div class="input-container">
+            <div class="input-label">Username</div>
+            <input type="text" id="username" placeholder="Enter your username" maxlength="12" class="bold-input rounded-input hover-effect text-center">
+
+            <div class="input-label">Game Code</div>
+            <input type="text" id="gameCode" placeholder="Enter game code" maxlength="4" oninput="handleGameCodeInput(this)" class="bold-input rounded-input hover-effect text-center" onkeypress="checkEnter(event)">
+
+            <button id="join-button" class="play-button rounded-button hover-effect text-center" onclick="joinGame()">Join Game</button>
+
+            <h2>Select Your Character</h2>
+            <div class="character-selection">
+                <!-- Character options (6 boxes) -->
+                <div class="character-box" onclick='selectCharacter("Character 1")'>Character 1</div>
+                <div class='character-box' onclick='selectCharacter("Character 2")'>Character 2</div>
+                <div class='character-box' onclick='selectCharacter("Character 3")'>Character 3</div>
+                <div class='character-box' onclick='selectCharacter("Character 4")'>Character 4</div>
+                <div class='character-box' onclick='selectCharacter("Character 5")'>Character 5</div>
+                <div class='character-box' onclick='selectCharacter("Character 6")'>Character 6</div>
+            </div>
+
+            <p id='selected-character' style='color: #ccc; font-size: 14px;'>Selected Character: None</p>
+        </div>
+    </div>
+
+    <script src='join.js'></script> <!-- Link to join.js -->
+</body>
+</html>

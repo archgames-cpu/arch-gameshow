@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="top-bar">
+        <h1 class="gameshow-title"><strong><i>Dashboard</i></strong></h1>
+    </div>
+
+    <div class="main-content">
+        <!-- Display Game Code at the center -->
+        <div id="game-code" class="game-code">Game Code: <span id="code-value">XXXX</span></div>
+
+        <div class="input-container">
+            <h2>Connected Players</h2>
+            <div id="player-list" class="player-list"></div> <!-- List of players -->
+            
+            <!-- Start Game Button -->
+            <button id="start-game-button" class="play-button rounded-button hover-effect text-center" onclick="startGame()">Start Game</button>
+
+            <!-- Divider between Start and Cancel buttons -->
+            <hr class="divider">
+
+            <!-- Cancel Game Button -->
+            <button id="cancel-game-button" class="play-button rounded-button hover-effect text-center" onclick="cancelGame()">Cancel Game</button>
+        </div>
+    </div>
+
+    <div class="watermark">2024 Arch Software</div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
